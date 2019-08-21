@@ -1,0 +1,36 @@
+[submodule "deps/iocAdmin"]
+	path = deps/iocAdmin.git
+	url = ssh://pslogin/afs/slac.stanford.edu/g/cd/swe/git/repos/package/epics/modules/iocAdmin.git
+[submodule "deps/twincat-ads"]
+	path = deps/twincat-ads.git
+	url = ssh://pslogin/afs/slac.stanford.edu/g/cd/swe/git/repos/package/epics/modules/twincat-ads.git
+[submodule "deps/motor"]
+	path = deps/motor.git
+	url = ssh://pslogin/afs/slac.stanford.edu/g/cd/swe/git/repos/package/epics/modules/motor.git
+[submodule "deps/asyn"]
+	path = deps/asyn.git
+	url = ssh://pslogin/afs/slac.stanford.edu/g/cd/swe/git/repos/package/epics/modules/asyn.git
+[submodule "deps/iocStats"]
+	path = deps/iocStats.git
+	url = ssh://pslogin/afs/slac.stanford.edu/g/cd/swe/git/repos/package/epics/modules/iocStats.git
+[submodule "deps/autosave"]
+	path = deps/autosave.git
+	url = ssh://pslogin/afs/slac.stanford.edu/g/cd/swe/git/repos/package/epics/modules/autosave.git
+[submodule "deps/calc"]
+	path = deps/calc.git
+	url = ssh://pslogin/afs/slac.stanford.edu/g/cd/swe/git/repos/package/epics/modules/calc.git
+[submodule "deps/base"]
+	path = deps/base.git
+	url = ssh://pslogin/afs/slac.stanford.edu/g/cd/swe/git/repos/package/epics/base/base.git
+[submodule "deps/ads-ioc"]
+	path = deps/ads-ioc.git
+	url = https://github.com/pcdshub/ads-ioc
+[submodule "deps/ADS"]
+	path = deps/ADS.git
+	url = ssh://pslogin/afs/slac.stanford.edu/g/cd/swe/git/repos/package/epics/modules/ADS.git
+[submodule "deps/sscan"]
+	path = deps/sscan.git
+	url = ssh://pslogin/afs/slac.stanford.edu/g/cd/swe/git/repos/package/epics/modules/sscan.git
+[submodule "deps/seq.git"]
+	path = deps/seq.git
+	url = ssh://pslogin/afs/slac.stanford.edu/g/cd/swe/git/repos/package/epics/modules/seq.git
