@@ -31,6 +31,9 @@
 [submodule "deps/sscan"]
 	path = deps/sscan.git
 	url = ssh://pslogin/afs/slac.stanford.edu/g/cd/swe/git/repos/package/epics/modules/sscan.git
-[submodule "deps/seq.git"]
+[submodule "deps/seq"]
 	path = deps/seq.git
 	url = ssh://pslogin/afs/slac.stanford.edu/g/cd/swe/git/repos/package/epics/modules/seq.git
+[submodule "deps/ethercatmc"]
+	path = deps/ethercatmc.git
+	url = ssh://pslogin/afs/slac.stanford.edu/g/cd/swe/git/repos/package/epics/modules/ethercatmc.git
