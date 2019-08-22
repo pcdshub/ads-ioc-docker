@@ -82,7 +82,6 @@ ENV EPICS_CA_SERVER_PORT            5064
 # ENV EPICS_REPO                      file:///afs/slac/g/pcds/vol2/svn/pcds
 
 WORKDIR ${EPICS_SITE_TOP}
-RUN cat ${GIT_EPICS_TOP}/base/base.git/config
 
 # -- Clone specific versions of the required modules
 COPY deps/RELEASE_SITE ${EPICS_SITE_TOP}/${BASE_MODULE_VERSION}/modules/RELEASE_SITE
@@ -99,23 +98,26 @@ RUN git clone --depth 0 --branch ${SSCAN_MODULE_VERSION} -- file://${GIT_EPICS_T
 RUN git clone --depth 0 --branch ${SEQ_MODULE_VERSION} -- file://${GIT_EPICS_TOP}/modules/seq.git ${SEQ_MODULE_PATH}
 
 # - Build all of the dependencies
-RUN make -j2 -C ${BASE_MODULE_PATH} CROSS_COMPILER_TARGET_ARCHS=
-RUN make -j2 -C ${ASYN_MODULE_PATH}
-RUN make -C ${ADS_MODULE_PATH}
-RUN make -j2 -C ${CALC_MODULE_PATH}
-RUN make -j2 -C ${AUTOSAVE_MODULE_PATH}
-RUN make -j2 -C ${IOCADMIN_MODULE_PATH}
-RUN make -j2 -C ${MOTOR_MODULE_PATH}
+RUN make -C ${BASE_MODULE_PATH} CROSS_COMPILER_TARGET_ARCHS= all clean
+RUN make -C ${ASYN_MODULE_PATH} all clean
+RUN make -C ${ADS_MODULE_PATH} all clean
+RUN make -C ${CALC_MODULE_PATH} all clean
+RUN make -C ${AUTOSAVE_MODULE_PATH} all clean
+RUN make -C ${IOCADMIN_MODULE_PATH} all clean
+RUN make -C ${MOTOR_MODULE_PATH} all clean
 
-RUN make -j2 -C ${SEQ_MODULE_PATH} RE2C="$(command -v re2c)"
-RUN make -j2 -C ${SSCAN_MODULE_PATH}
+RUN make -C ${SEQ_MODULE_PATH} RE2C="$(command -v re2c)" all clean
+RUN make -C ${SSCAN_MODULE_PATH} all clean
 
 WORKDIR ${ETHERCATMC_MODULE_PATH}
 RUN sed -i -e 's/^CALC_MODULE_VERSION.*=.*$/CALC_MODULE_VERSION = R3.7-1.0.1/' configure/RELEASE.local
-RUN make -C ${ETHERCATMC_MODULE_PATH}
+RUN make -C ${ETHERCATMC_MODULE_PATH} all clean
 
 # - And the ADS IOC
 WORKDIR /epics/iocs
 ENV ADS_IOC_PATH /epics/iocs/ads-ioc
 RUN git clone file://${GIT_EPICS_TOP}/modules/ads-ioc.git ${ADS_IOC_PATH}
-RUN make -C ${ADS_IOC_PATH}
+RUN make -C ${ADS_IOC_PATH} all clean
+
+WORKDIR ${ADS_IOC_PATH}/bin/${EPICS_HOST_ARCH}
+ENTRYPOINT ["./adsIoc"]
