@@ -1,7 +1,9 @@
+ADS_IOC_VERSION=$(shell git describe --tags)
+
 all: image
 
 image:
-	DOCKER_BUILDKIT=1 docker build --rm=false -t pytmc:v0.0.0 .
+	docker build -t ads-ioc:$(ADS_IOC_VERSION) .
 
 
 .PHONY: all image
