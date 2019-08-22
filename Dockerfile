@@ -24,10 +24,7 @@ RUN yum groups mark convert
 RUN yum groupinstall -y 'Development Tools'
 
 RUN yum install -y glibc-common-2.17 telnet perl-CPAN openssl-devel zlib-devel qt5-qtbase-devel
-RUN yum install -y git readline-devel ncurses-devel
-
-RUN command -v g++
-RUN command -v perl
+RUN yum install -y git readline-devel ncurses-devel re2c
 
 # -- Set up all git remotes
 ENV GIT_EPICS_TOP /afs/slac.stanford.edu/g/cd/swe/git/repos/package/epics/
@@ -52,7 +49,7 @@ RUN find . -maxdepth 3 -name config \
          -exec sed -i -e 's/bare = false/bare = true/' -e 's/worktree =/# worktree =/' {} \;
 
 # -- Set up paths
-WORKDIR /reg/g/pcds/epics
+ENV EPICS_SITE_TOP                  /reg/g/pcds/epics
 
 ENV BASE_MODULE_PATH          /reg/g/pcds/epics/base/${BASE_MODULE_VERSION}
 ENV ADS_MODULE_PATH           /reg/g/pcds/epics/${BASE_MODULE_VERSION}/modules/twincat-ads/${ADS_MODULE_VERSION}
@@ -68,14 +65,11 @@ ENV SEQ_MODULE_PATH           /reg/g/pcds/epics/${BASE_MODULE_VERSION}/modules/s
 ENV EPICS_BASE                      ${BASE_MODULE_PATH}
 ENV EPICS_HOST_ARCH                 rhel7-x86_64
 ENV EPICS_SETUP                     /reg/g/pcds/setup
-ENV EPICS_SITE_TOP                  /reg/g/pcds/epics
 ENV EPICS_CA_REPEATER_PORT          5065
 ENV EPICS_PVA_SERVER_PORT           5075
 ENV EPICS_BASE                      /reg/g/pcds/epics/base/R7.0.2-2.0
 ENV EPICS_PVA_AUTO_ADDR_LIST        YES
-# ENV EPICS_EXTENSIONS                /reg/g/pcds/epics/extensions/R0.2.0
 ENV EPICS_CA_AUTO_ADDR_LIST         YES
-# ENV EPICS_REPO                      file:///afs/slac/g/pcds/vol2/svn/pcds
 ENV EPICS_HOST_ARCH                 rhel7-x86_64
 ENV EPICS_PVA_BROADCAST_PORT        5076
 ENV EPICS_CA_BEACON_PERIOD          15.0
@@ -84,11 +78,14 @@ ENV EPICS_CA_MAX_SEARCH_PERIOD      300
 ENV EPICS_MODULES                   /reg/g/pcds/epics/R7.0.2-2.0/modules
 ENV EPICS_CA_MAX_ARRAY_BYTES        40000000
 ENV EPICS_CA_SERVER_PORT            5064
+# ENV EPICS_EXTENSIONS                /reg/g/pcds/epics/extensions/R0.2.0
+# ENV EPICS_REPO                      file:///afs/slac/g/pcds/vol2/svn/pcds
 
+WORKDIR ${EPICS_SITE_TOP}
 RUN cat ${GIT_EPICS_TOP}/base/base.git/config
 
 # -- Clone specific versions of the required modules
-COPY deps/RELEASE_SITE ${PWD}/${BASE_MODULE_VERSION}/modules/RELEASE_SITE
+COPY deps/RELEASE_SITE ${EPICS_SITE_TOP}/${BASE_MODULE_VERSION}/modules/RELEASE_SITE
 
 RUN git clone --depth 0 --branch ${BASE_MODULE_TAG} -- file://${GIT_EPICS_TOP}/base/base.git ${BASE_MODULE_PATH}
 RUN git clone --depth 0 --branch ${ASYN_MODULE_VERSION} -- file://${GIT_EPICS_TOP}/modules/asyn.git ${ASYN_MODULE_PATH}
@@ -110,7 +107,6 @@ RUN make -j2 -C ${AUTOSAVE_MODULE_PATH}
 RUN make -j2 -C ${IOCADMIN_MODULE_PATH}
 RUN make -j2 -C ${MOTOR_MODULE_PATH}
 
-RUN yum install -y re2c
 RUN make -j2 -C ${SEQ_MODULE_PATH} RE2C="$(command -v re2c)"
 RUN make -j2 -C ${SSCAN_MODULE_PATH}
 
