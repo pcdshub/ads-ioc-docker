@@ -27,7 +27,7 @@ RUN yum install -y glibc-common-2.17 telnet perl-CPAN openssl-devel zlib-devel q
 RUN yum install -y git readline-devel ncurses-devel re2c
 
 # -- Set up all git remotes
-ENV GIT_MODULE_TOP git@github.com:slac-epics
+ENV GIT_MODULE_TOP https://github.com/slac-epics
 ENV GIT_BASE_TOP   ${GIT_MODULE_TOP}
 
 # -- Set up paths
@@ -68,7 +68,7 @@ WORKDIR ${EPICS_SITE_TOP}
 # -- Clone specific versions of the required modules
 COPY deps/RELEASE_SITE ${EPICS_SITE_TOP}/${BASE_MODULE_VERSION}/modules/RELEASE_SITE
 
-RUN git clone --depth 0 --branch ${BASE_MODULE_TAG} -- $GIT_BASE_TOP/base.git ${BASE_MODULE_PATH}
+RUN git clone --depth 0 --branch ${BASE_MODULE_TAG} -- $GIT_BASE_TOP/epics-base.git ${BASE_MODULE_PATH}
 RUN git clone --depth 0 --branch ${ASYN_MODULE_VERSION} -- $GIT_MODULE_TOP/asyn.git ${ASYN_MODULE_PATH}
 RUN git clone --recursive --depth 0 --branch ${ADS_MODULE_VERSION} -- $GIT_MODULE_TOP/twincat-ads.git ${ADS_MODULE_PATH}
 RUN git clone --depth 0 --branch ${CALC_MODULE_VERSION} -- $GIT_MODULE_TOP/calc.git ${CALC_MODULE_PATH}
