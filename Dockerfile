@@ -27,29 +27,11 @@ RUN yum install -y glibc-common-2.17 telnet perl-CPAN openssl-devel zlib-devel q
 RUN yum install -y git readline-devel ncurses-devel re2c
 
 # -- Set up all git remotes
-ENV GIT_EPICS_TOP /afs/slac.stanford.edu/g/cd/swe/git/repos/package/epics/
-
-WORKDIR $GIT_EPICS_TOP
-COPY .git/modules/deps/base            base/base.git
-COPY .git/modules/deps/asyn            modules/asyn.git
-COPY .git/modules/deps/autosave        modules/autosave.git
-COPY .git/modules/deps/calc            modules/calc.git
-COPY .git/modules/deps/iocAdmin        modules/iocAdmin.git
-COPY .git/modules/deps/ethercatmc      modules/ethercatmc.git
-COPY .git/modules/deps/motor           modules/motor.git
-COPY .git/modules/deps/twincat-ads     modules/twincat-ads.git
-COPY .git/modules/deps/ads-ioc         modules/ads-ioc.git
-COPY .git/modules/deps/sscan           modules/sscan.git
-COPY .git/modules/deps/seq             modules/seq.git
-COPY .git/modules/deps/ADS             modules/ADS.git
-
-# -- I'd really like if these modules were available online, but let's hack away:
-#    Submodules are marked as non-bare and include a worktree with a bad path - remove that
-RUN find . -maxdepth 3 -name config \
-         -exec sed -i -e 's/bare = false/bare = true/' -e 's/worktree =/# worktree =/' {} \;
+ENV GIT_MODULE_TOP git@github.com:slac-epics
+ENV GIT_BASE_TOP   ${GIT_MODULE_TOP}
 
 # -- Set up paths
-ENV EPICS_SITE_TOP                  /reg/g/pcds/epics
+ENV EPICS_SITE_TOP            /reg/g/pcds/epics
 
 ENV BASE_MODULE_PATH          /reg/g/pcds/epics/base/${BASE_MODULE_VERSION}
 ENV ADS_MODULE_PATH           /reg/g/pcds/epics/${BASE_MODULE_VERSION}/modules/twincat-ads/${ADS_MODULE_VERSION}
@@ -86,16 +68,16 @@ WORKDIR ${EPICS_SITE_TOP}
 # -- Clone specific versions of the required modules
 COPY deps/RELEASE_SITE ${EPICS_SITE_TOP}/${BASE_MODULE_VERSION}/modules/RELEASE_SITE
 
-RUN git clone --depth 0 --branch ${BASE_MODULE_TAG} -- file://${GIT_EPICS_TOP}/base/base.git ${BASE_MODULE_PATH}
-RUN git clone --depth 0 --branch ${ASYN_MODULE_VERSION} -- file://${GIT_EPICS_TOP}/modules/asyn.git ${ASYN_MODULE_PATH}
-RUN git clone --recursive --depth 0 --branch ${ADS_MODULE_VERSION} -- file://${GIT_EPICS_TOP}/modules/twincat-ads.git ${ADS_MODULE_PATH}
-RUN git clone --depth 0 --branch ${CALC_MODULE_VERSION} -- file://${GIT_EPICS_TOP}/modules/calc.git ${CALC_MODULE_PATH}
-RUN git clone --depth 0 --branch ${IOCADMIN_MODULE_VERSION} -- file://${GIT_EPICS_TOP}/modules/iocAdmin.git ${IOCADMIN_MODULE_PATH}
-RUN git clone --depth 0 --branch ${AUTOSAVE_MODULE_VERSION} -- file://${GIT_EPICS_TOP}/modules/autosave.git ${AUTOSAVE_MODULE_PATH}
-RUN git clone --depth 0 --branch ${MOTOR_MODULE_VERSION} -- file://${GIT_EPICS_TOP}/modules/motor.git ${MOTOR_MODULE_PATH}
-RUN git clone --depth 0 --branch ${ETHERCATMC_MODULE_VERSION} -- file://${GIT_EPICS_TOP}/modules/ethercatmc.git ${ETHERCATMC_MODULE_PATH}
-RUN git clone --depth 0 --branch ${SSCAN_MODULE_VERSION} -- file://${GIT_EPICS_TOP}/modules/sscan.git ${SSCAN_MODULE_PATH}
-RUN git clone --depth 0 --branch ${SEQ_MODULE_VERSION} -- file://${GIT_EPICS_TOP}/modules/seq.git ${SEQ_MODULE_PATH}
+RUN git clone --depth 0 --branch ${BASE_MODULE_TAG} -- $GIT_BASE_TOP/base.git ${BASE_MODULE_PATH}
+RUN git clone --depth 0 --branch ${ASYN_MODULE_VERSION} -- $GIT_MODULE_TOP/asyn.git ${ASYN_MODULE_PATH}
+RUN git clone --recursive --depth 0 --branch ${ADS_MODULE_VERSION} -- $GIT_MODULE_TOP/twincat-ads.git ${ADS_MODULE_PATH}
+RUN git clone --depth 0 --branch ${CALC_MODULE_VERSION} -- $GIT_MODULE_TOP/calc.git ${CALC_MODULE_PATH}
+RUN git clone --depth 0 --branch ${IOCADMIN_MODULE_VERSION} -- $GIT_MODULE_TOP/iocAdmin.git ${IOCADMIN_MODULE_PATH}
+RUN git clone --depth 0 --branch ${AUTOSAVE_MODULE_VERSION} -- $GIT_MODULE_TOP/autosave.git ${AUTOSAVE_MODULE_PATH}
+RUN git clone --depth 0 --branch ${MOTOR_MODULE_VERSION} -- $GIT_MODULE_TOP/motor.git ${MOTOR_MODULE_PATH}
+RUN git clone --depth 0 --branch ${ETHERCATMC_MODULE_VERSION} -- $GIT_MODULE_TOP/ethercatmc.git ${ETHERCATMC_MODULE_PATH}
+RUN git clone --depth 0 --branch ${SSCAN_MODULE_VERSION} -- $GIT_MODULE_TOP/sscan.git ${SSCAN_MODULE_PATH}
+RUN git clone --depth 0 --branch ${SEQ_MODULE_VERSION} -- $GIT_MODULE_TOP/seq.git ${SEQ_MODULE_PATH}
 
 # - Build all of the dependencies
 RUN make -C ${BASE_MODULE_PATH} CROSS_COMPILER_TARGET_ARCHS= all clean
