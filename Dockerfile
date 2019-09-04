@@ -97,8 +97,10 @@ RUN make -C ${ETHERCATMC_MODULE_PATH} all clean
 
 # - And the ADS IOC
 WORKDIR /epics/iocs
+ENV GIT_IOC_TOP   https://github.com/pcdshub
 ENV ADS_IOC_PATH /epics/iocs/ads-ioc
-RUN git clone file://${GIT_EPICS_TOP}/modules/ads-ioc.git ${ADS_IOC_PATH}
+RUN git clone $GIT_IOC_TOP/ads-ioc.git ${ADS_IOC_PATH}
+RUN sed -i -e 's/^ADS_MODULE_VERSION.*=.*$/ADS_MODULE_VERSION = R2.0.0-0.0.4/' ${ADS_IOC_PATH}/configure/RELEASE
 RUN make -C ${ADS_IOC_PATH} all clean
 
 WORKDIR ${ADS_IOC_PATH}/bin/${EPICS_HOST_ARCH}
