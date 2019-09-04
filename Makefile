@@ -8,5 +8,8 @@ image:
 push:
 	docker push pcdshub/ads-ioc:$(ADS_IOC_VERSION)
 
+iocsh:
+	docker run -it pcdshub/ads-ioc:$(ADS_IOC_VERSION)
 
-.PHONY: all image push
+
+.PHONY: all image push iocsh
