@@ -96,10 +96,13 @@ RUN sed -i -e 's/^CALC_MODULE_VERSION.*=.*$/CALC_MODULE_VERSION = R3.7-1.0.1/' c
 RUN make -C ${ETHERCATMC_MODULE_PATH} all clean
 
 # - And the ADS IOC
+ENV ADS_IOC_VERSION  v0.1.0
+
 WORKDIR /epics/iocs
 ENV GIT_IOC_TOP   https://github.com/pcdshub
 ENV ADS_IOC_PATH /epics/iocs/ads-ioc
-RUN git clone $GIT_IOC_TOP/ads-ioc.git ${ADS_IOC_PATH}
+RUN git clone --branch ${ADS_IOC_VERSION} $GIT_IOC_TOP/ads-ioc.git ${ADS_IOC_PATH}
+RUN cd ${ADS_IOC_PATH} && git log |head
 RUN sed -i -e 's/^ADS_MODULE_VERSION.*=.*$/ADS_MODULE_VERSION = R2.0.0-0.0.4/' ${ADS_IOC_PATH}/configure/RELEASE
 RUN make -C ${ADS_IOC_PATH} all clean
 
