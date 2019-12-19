@@ -7,7 +7,6 @@ USER root
 ENV BASE_MODULE_TAG           R7.0.2-2.branch
 ENV BASE_MODULE_VERSION       R7.0.2-2.0
 
-ENV ADS_MODULE_VERSION        R2.0.0-0.0.4
 ENV ASYN_MODULE_VERSION       R4.35-0.0.1
 ENV AUTOSAVE_MODULE_VERSION   R5.8-2.1.0
 ENV CALC_MODULE_VERSION       R3.7-1.0.1
@@ -34,7 +33,6 @@ ENV GIT_BASE_TOP   ${GIT_MODULE_TOP}
 ENV EPICS_SITE_TOP            /reg/g/pcds/epics
 
 ENV BASE_MODULE_PATH          /reg/g/pcds/epics/base/${BASE_MODULE_VERSION}
-ENV ADS_MODULE_PATH           /reg/g/pcds/epics/${BASE_MODULE_VERSION}/modules/twincat-ads/${ADS_MODULE_VERSION}
 ENV ASYN_MODULE_PATH          /reg/g/pcds/epics/${BASE_MODULE_VERSION}/modules/asyn/${ASYN_MODULE_VERSION}
 ENV AUTOSAVE_MODULE_PATH      /reg/g/pcds/epics/${BASE_MODULE_VERSION}/modules/autosave/${AUTOSAVE_MODULE_VERSION}
 ENV CALC_MODULE_PATH          /reg/g/pcds/epics/${BASE_MODULE_VERSION}/modules/calc/${CALC_MODULE_VERSION}
@@ -43,6 +41,8 @@ ENV IOCADMIN_MODULE_PATH      /reg/g/pcds/epics/${BASE_MODULE_VERSION}/modules/i
 ENV MOTOR_MODULE_PATH         /reg/g/pcds/epics/${BASE_MODULE_VERSION}/modules/motor/${MOTOR_MODULE_VERSION}
 ENV SSCAN_MODULE_PATH         /reg/g/pcds/epics/${BASE_MODULE_VERSION}/modules/sscan/${SSCAN_MODULE_VERSION}
 ENV SEQ_MODULE_PATH           /reg/g/pcds/epics/${BASE_MODULE_VERSION}/modules/seq/${SEQ_MODULE_VERSION}
+ENV IOC_PATH                  /reg/g/pcds/epics/ioc/
+ENV IOC_COMMON_PATH           ${IOC_PATH}/common/
 
 ENV EPICS_BASE                      ${BASE_MODULE_PATH}
 ENV EPICS_HOST_ARCH                 rhel7-x86_64
@@ -70,7 +70,6 @@ COPY deps/RELEASE_SITE ${EPICS_SITE_TOP}/${BASE_MODULE_VERSION}/modules/RELEASE_
 
 RUN git clone --depth 0 --branch ${BASE_MODULE_TAG} -- $GIT_BASE_TOP/epics-base.git ${BASE_MODULE_PATH}
 RUN git clone --depth 0 --branch ${ASYN_MODULE_VERSION} -- $GIT_MODULE_TOP/asyn.git ${ASYN_MODULE_PATH}
-RUN git clone --recursive --depth 0 --branch ${ADS_MODULE_VERSION} -- $GIT_MODULE_TOP/twincat-ads.git ${ADS_MODULE_PATH}
 RUN git clone --depth 0 --branch ${CALC_MODULE_VERSION} -- $GIT_MODULE_TOP/calc.git ${CALC_MODULE_PATH}
 RUN git clone --depth 0 --branch ${IOCADMIN_MODULE_VERSION} -- $GIT_MODULE_TOP/iocAdmin.git ${IOCADMIN_MODULE_PATH}
 RUN git clone --depth 0 --branch ${AUTOSAVE_MODULE_VERSION} -- $GIT_MODULE_TOP/autosave.git ${AUTOSAVE_MODULE_PATH}
@@ -82,7 +81,6 @@ RUN git clone --depth 0 --branch ${SEQ_MODULE_VERSION} -- $GIT_MODULE_TOP/seq.gi
 # - Build all of the dependencies
 RUN make -C ${BASE_MODULE_PATH} CROSS_COMPILER_TARGET_ARCHS= all clean
 RUN make -C ${ASYN_MODULE_PATH} all clean
-RUN make -C ${ADS_MODULE_PATH} all clean
 RUN make -C ${CALC_MODULE_PATH} all clean
 RUN make -C ${AUTOSAVE_MODULE_PATH} all clean
 RUN make -C ${IOCADMIN_MODULE_PATH} all clean
@@ -91,19 +89,29 @@ RUN make -C ${MOTOR_MODULE_PATH} all clean
 RUN make -C ${SEQ_MODULE_PATH} RE2C="$(command -v re2c)" all clean
 RUN make -C ${SSCAN_MODULE_PATH} all clean
 
+# -- Last dependencies most likely to change - ADS + ethercatmc
+ENV ADS_MODULE_VERSION        R2.0.0-0.0.5
+ENV BECKHOFF_ADS_PATH         /afs/slac.stanford.edu/g/cd/swe/git/repos/package/epics/modules/ADS.git
+ENV ADS_MODULE_PATH           /reg/g/pcds/epics/${BASE_MODULE_VERSION}/modules/twincat-ads/${ADS_MODULE_VERSION}
+RUN git clone --depth 0 -- $GIT_MODULE_TOP/ADS.git ${BECKHOFF_ADS_PATH}/
+RUN git clone --recursive --depth 0 --branch ${ADS_MODULE_VERSION} -- $GIT_MODULE_TOP/twincat-ads.git ${ADS_MODULE_PATH}
+RUN make -C ${ADS_MODULE_PATH} all clean
+
 WORKDIR ${ETHERCATMC_MODULE_PATH}
 RUN sed -i -e 's/^CALC_MODULE_VERSION.*=.*$/CALC_MODULE_VERSION = R3.7-1.0.1/' configure/RELEASE.local
 RUN make -C ${ETHERCATMC_MODULE_PATH} all clean
 
 # - And the ADS IOC
-ENV ADS_IOC_VERSION  v0.1.0
+ENV ADS_IOC_VERSION  R0.1.6
 
-WORKDIR /epics/iocs
+ENV ADS_IOC_ROOT ${IOC_COMMON_PATH}/ads-ioc
+ENV ADS_IOC_PATH ${ADS_IOC_ROOT}/${ADS_IOC_VERSION}
+
+WORKDIR ${ADS_IOC_ROOT}
+
 ENV GIT_IOC_TOP   https://github.com/pcdshub
-ENV ADS_IOC_PATH /epics/iocs/ads-ioc
-RUN git clone --branch ${ADS_IOC_VERSION} $GIT_IOC_TOP/ads-ioc.git ${ADS_IOC_PATH}
-RUN cd ${ADS_IOC_PATH} && git log |head
-RUN sed -i -e 's/^ADS_MODULE_VERSION.*=.*$/ADS_MODULE_VERSION = R2.0.0-0.0.4/' ${ADS_IOC_PATH}/configure/RELEASE
+RUN git clone --branch ${ADS_IOC_VERSION} $GIT_IOC_TOP/ads-ioc.git ${ADS_IOC_PATH} && \
+        cd ${ADS_IOC_PATH} && git log |head
 RUN make -C ${ADS_IOC_PATH} all clean
 
 WORKDIR ${ADS_IOC_PATH}/bin/${EPICS_HOST_ARCH}
