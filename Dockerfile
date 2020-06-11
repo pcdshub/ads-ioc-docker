@@ -10,7 +10,7 @@ ENV BASE_MODULE_VERSION       R7.0.2-2.0
 ENV ASYN_MODULE_VERSION       R4.35-0.0.1
 ENV AUTOSAVE_MODULE_VERSION   R5.8-2.1.0
 ENV CALC_MODULE_VERSION       R3.7-1.0.1
-ENV ETHERCATMC_MODULE_VERSION R2.1.0-0.1.0
+ENV ETHERCATMC_MODULE_VERSION R2.1.0-0.1.2
 ENV IOCADMIN_MODULE_VERSION   R3.1.15-1.10.0
 ENV MOTOR_MODULE_VERSION      R6.9-ess-0.0.1
 ENV SEQ_MODULE_VERSION        R2.2.4-1.1
@@ -90,7 +90,7 @@ RUN make -C ${SEQ_MODULE_PATH} RE2C="$(command -v re2c)" all clean
 RUN make -C ${SSCAN_MODULE_PATH} all clean
 
 # -- Last dependencies most likely to change - ADS + ethercatmc
-ENV ADS_MODULE_VERSION        R2.0.0-0.0.5
+ENV ADS_MODULE_VERSION        R2.0.0-0.0.6
 ENV BECKHOFF_ADS_PATH         /afs/slac.stanford.edu/g/cd/swe/git/repos/package/epics/modules/ADS.git
 ENV ADS_MODULE_PATH           /reg/g/pcds/epics/${BASE_MODULE_VERSION}/modules/twincat-ads/${ADS_MODULE_VERSION}
 RUN git clone --depth 0 -- $GIT_MODULE_TOP/ADS.git ${BECKHOFF_ADS_PATH}/
@@ -102,7 +102,7 @@ RUN sed -i -e 's/^CALC_MODULE_VERSION.*=.*$/CALC_MODULE_VERSION = R3.7-1.0.1/' c
 RUN make -C ${ETHERCATMC_MODULE_PATH} all clean
 
 # - And the ADS IOC
-ENV ADS_IOC_VERSION  R0.2.0
+ENV ADS_IOC_VERSION  R0.2.4
 
 ENV ADS_IOC_ROOT     ${IOC_COMMON_PATH}/ads-ioc
 ENV ADS_IOC_PATH     ${ADS_IOC_ROOT}/${ADS_IOC_VERSION}

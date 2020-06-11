@@ -1,4 +1,4 @@
-ADS_IOC_VERSION=v0.1.6
+ADS_IOC_VERSION=R0.2.4
 #$(shell git describe --tags)
 
 all: image
