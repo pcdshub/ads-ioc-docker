@@ -6,7 +6,7 @@ Running an IOC:
 ```sh
 # 
 $ eval $(docker-machine env)
-$ docker run -im pcdshub/ads-ioc:v0.0.1
+$ docker run -im pcdshub/ads-ioc:R0.6.1
 epics>
 ```
 
@@ -14,7 +14,7 @@ Args to be passed to the `adsIoc` binary can be specified after the image name
 above. For example:
 
 ```sh
-$ docker run -im pcdshub/ads-ioc:v0.0.1 st.cmd
+$ docker run -im pcdshub/ads-ioc:R0.6.1 st.cmd
 ```
 
 Updating ads-ioc-docker
