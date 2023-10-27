@@ -101,10 +101,10 @@ RUN make -C ${CAPUTLOG_MODULE_PATH} all clean
 
 # -- Last dependencies most likely to change - ADS + ethercatmc
 ENV ADS_MODULE_VERSION        R2.0.0-0.0.7
-ENV BECKHOFF_ADS_PATH         /afs/slac.stanford.edu/g/cd/swe/git/repos/package/epics/modules/ADS.git
 ENV ADS_MODULE_PATH           /cds/group/pcds/epics/${BASE_MODULE_VERSION}/modules/twincat-ads/${ADS_MODULE_VERSION}
-RUN git clone --depth 0 -- $GIT_MODULE_TOP/ADS.git ${BECKHOFF_ADS_PATH}/
-RUN git clone --recursive --depth 0 --branch ${ADS_MODULE_VERSION} -- $GIT_MODULE_TOP/twincat-ads.git ${ADS_MODULE_PATH}
+
+COPY ../twincat-ads           ${ADS_MODULE_PATH}
+
 RUN make -C ${ADS_MODULE_PATH} all clean
 
 WORKDIR ${ETHERCATMC_MODULE_PATH}
